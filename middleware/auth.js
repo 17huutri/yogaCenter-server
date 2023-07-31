@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import ENV from '../config.js'
 
 /** auth middleware */
-export default async function Auth(req, res, next){
+export default async function Auth(req, res, next){ // phan quyen
     try {
         
         // access authorize header to validate request

@@ -33,7 +33,7 @@ export async function getAllBookings(req, res) {
     let status = req.query.status;
     console.log(status);
     try {
-        const allBookings = await BookingModel.find({isAccepted : status})
+        const allBookings = await BookingModel.find({ isAccepted: status })
         res.status(200).json(
             allBookings
         )
@@ -52,10 +52,9 @@ export async function deleteBooking(req, res) {
         const updateUser = await UserModel.findById(booking.user.toString())
         updateGrade.nOfStudent = updateGrade.nOfStudent - 1;
         updateUser.grade = null;
-        console.log(updateUser)
         await updateGrade.save();
         await updateUser.save();
-        
+
         res.status(202).json({
             msg: 'Delete Success'
         })
@@ -73,10 +72,15 @@ export async function updateBooking(req, res) {
         const updateBooking = await BookingModel.findById(id);
         const updateUser = await UserModel.findById(updateBooking.user.toString());
         const updateGrade = await GradeModel.findById(updateBooking.grade.toString());
-        updateGrade.nOfStudent = updateGrade.nOfStudent + 1 ;
+        const number = await UserModel.find({ grade: updateGrade._id.toString() });
+
+        debugger
+        if (updateGrade.nOfStudent <= 20 && updateUser.grade == null) {
+            updateGrade.nOfStudent = number.length + 1;
+            updateUser.grade = updateBooking.grade;
+        }
+        else throw Error;
         updateBooking.isAccepted = 1;
-        updateUser.grade = updateBooking.grade;
-        updateUser.ex_grade = updateGrade.gradeName;
         await updateBooking.save();
         await updateUser.save();
         await updateGrade.save();
@@ -111,10 +115,10 @@ export async function rejectBooking(req, res) {
 
 }
 export async function getStatusBooking(req, res) {
-    
+
     let status = req.query.isAccepted;
     try {
-        const allBookings = await BookingModel.find({isAccepted : status})
+        const allBookings = await BookingModel.find({ isAccepted: status })
         res.status(200).json(
             allBookings
         )
@@ -126,7 +130,7 @@ export async function getStatusBooking(req, res) {
 }
 export async function getAcceptedBookings(req, res) {
     try {
-        const allBookings = await BookingModel.find({isAccepted : 1})
+        const allBookings = await BookingModel.find({ isAccepted: 1 })
         res.status(200).json(
             allBookings
         )
@@ -138,7 +142,7 @@ export async function getAcceptedBookings(req, res) {
 }
 export async function getRejectedBookings(req, res) {
     try {
-        const allBookings = await BookingModel.find({isAccepted : -1})
+        const allBookings = await BookingModel.find({ isAccepted: -1 })
         res.status(200).json(
             allBookings
         )
@@ -150,7 +154,7 @@ export async function getRejectedBookings(req, res) {
 }
 export async function getWaitingBookings(req, res) {
     try {
-        const allBookings = await BookingModel.find({isAccepted : 0})
+        const allBookings = await BookingModel.find({ isAccepted: 0 })
         res.status(200).json(
             allBookings
         )
@@ -163,7 +167,7 @@ export async function getWaitingBookings(req, res) {
 export async function getBookingOfUser(req, res) {
     let userId = req.params.id
     try {
-        const booking = await BookingModel.find({user : userId})
+        const booking = await BookingModel.find({ user: userId })
         res.status(200).json(
             booking
         )
@@ -172,4 +176,23 @@ export async function getBookingOfUser(req, res) {
             msg: 'Failed'
         })
     }
+}
+export async function setPaymentStatus(req, res) {
+    const id = req.params.id
+
+    try {
+
+        const updateBooking = await BookingModel.findById(id);
+        updateBooking.payment = 1;
+        await updateBooking.save();
+        res.status(200).json({
+            msg: 'Update Success'
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Cannot update'
+        })
+    }
+
 }

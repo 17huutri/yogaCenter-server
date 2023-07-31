@@ -95,3 +95,14 @@ export async function detailCourse(req,res){
         })
     }
 }
+export async function getCourseById(req, res) {
+    const id = req.params.id
+    try {
+        const course = await CourseModel.find({ _id: id })
+        res.status(202).json(course)
+    } catch (error) {
+        res.status(204).json({
+            msg: 'Cannot find'
+        })
+    }
+}

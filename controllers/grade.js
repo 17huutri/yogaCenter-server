@@ -44,7 +44,7 @@ export async function createGrade(req, res) {
 }
 export async function getAllGrades(req, res) {
     try {
-        const allGrades = await GradeModel.find()
+        const allGrades = await GradeModel.find().sort({"startTimeGrade" : 1})
         res.status(200).json(
             allGrades
         )
@@ -93,8 +93,19 @@ export async function searchGrade(req, res) {
 export async function gradesOfMentor(req, res) {
     const mentorId = req.params.mentorId;
     try {
-        const grades = await GradeModel.find({instructor : mentorId});
+        const grades = await GradeModel.find({instructor : mentorId}).sort({"startTimeGrade" : 1});
         res.status(200).json(grades);
+    } catch (error) {
+        res.status(500).json({
+            error: 'Server error',
+        });
+    }
+}
+export async function getGradeById(req, res) {
+    const id = req.params.id;
+    try {
+        const grade = await GradeModel.findById( id );
+        res.status(200).json(grade);
     } catch (error) {
         res.status(500).json({
             error: 'Server error',

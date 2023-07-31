@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import ENV from '../config.js'
 import otpGenerator from 'otp-generator';
 import { sendMail } from './mailer.js';
+import GradeModel from '../model/Grade.model.js';
 
 /** middleware for verify user */
 
@@ -138,7 +139,8 @@ export async function login(req, res) {
                                 username: user.username,
                                 roleId: user.roleId,
                                 id: user._id,
-                                token
+                                token,
+                                fullName: user.fullName
                             });
                         } else return res.status(400).send({ error: "Account is not actived" });
 
@@ -421,7 +423,18 @@ export async function getAllUser(req, res) {
     const active = req.query.active
     const username = req.query.username
     try {
-        const users = await UserModel.find({isActive : active, username : { $regex: username, $options: 'i' }}).select("-password");
+        const users = await UserModel.find({ isActive: active, username: { $regex: username, $options: 'i' } }).select("-password");
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+
+}
+export async function getAllUser_2(req, res) {
+    const active = req.query.active
+    const fullName = req.query.fullName
+    try {
+        const users = await UserModel.find({ isActive: active, fullName: { $regex: fullName, $options: 'i' } }).select("-password");
         res.status(200).json(users);
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -435,6 +448,28 @@ export async function studentInGrade(req, res) {
         res.status(200).json(students);
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+}
+export async function kickoutStudent(req, res) {
+    const id = req.params.id;
+    try {
+        const student = await UserModel.findById(id);
+        debugger
+        const grade = await GradeModel.findById(student.grade.toString());
+        const number = await UserModel.find({ grade: grade._id.toString() });
+
+        grade.nOfStudent = number.length - 1;
+        if (student.ex_grade) {
+            student.ex_grade = student.ex_grade + " , " + grade.gradeName;
+        } else student.ex_grade = grade.gradeName;
+        student.grade = null;
+        await student.save();
+        await grade.save();
+        res.status(200).json('Successfully !!!');
+    } catch (error) {
+        res.status(500).json({
+            error: 'Server error',
+        });
     }
 }
 // export async function searchUsers(req, res) {

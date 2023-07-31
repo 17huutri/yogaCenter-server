@@ -7,6 +7,15 @@ export const BookingSchema = new mongoose.Schema({
     grade: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Grade',
+        
+    },
+    payment: {
+        type: Number,
+        default: 0,
+        enum: {
+            values: [0, 1],
+            message: '{VALUE} is not supported'
+        },
     },
     isAccepted: {
         type: Number,
