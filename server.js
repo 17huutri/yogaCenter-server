@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import * as dotenv from 'dotenv'
 import multer from 'multer';
+import bodyParser from 'body-parser';
 import connect from './database/conn.js';
 import router from './router/route.js';
 import adminRouter from './router/admin.js'
@@ -13,6 +14,7 @@ import gradeRouter from './router/grade.js'
 import bookingRouter from './router/booking.js'
 import courseRouter from './router/course.js'
 import customerRouter from './router/customer.js'
+import slotRouter from './router/slot.js'
 // import mentorRouter from './router/mentor.js'
 
 dotenv.config()
@@ -76,9 +78,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 });
 /** api routes */
+app.use(bodyParser.json());
 app.use('/api', router)
 app.use('/admin', adminRouter)
-
+app.use('/slot', slotRouter)
 app.use('/blog', blogRouter)
 app.use('/booking', bookingRouter)
 app.use('/grade', gradeRouter)

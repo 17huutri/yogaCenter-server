@@ -21,11 +21,6 @@ export const UserSchema = new mongoose.Schema({
         unique: [true, "Email Exist"]
     },
     grade: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Grade',
-        unique: [true, "Please provide a unique"]
-    },
-    ex_grade: {
         type: String,
     },
     address: { type: String },
